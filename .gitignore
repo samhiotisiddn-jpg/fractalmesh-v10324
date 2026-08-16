@@ -1,0 +1,7 @@
+.env
+.env.*
+*.gguf
+koboldcpp/
+__pycache__/
+*.pem
+*.key

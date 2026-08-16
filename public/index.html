@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FractalMesh · Autonomous Agent Orchestration &amp; Fractal Memory</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/syne@5/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/instrument-sans@5/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@5/400.css">
+<style>
+:root{--bg:#0A0D12;--panel:#0E141B;--line:rgba(160,190,210,.14);--ink:#E9EFF5;--dim:#8FA0B0;
+--mint:#7DF9C6;--amber:#FFB454;--blue:#7AA2FF;--mono:'IBM Plex Mono',monospace;
+--disp:'Syne',sans-serif;--body:'Instrument Sans',system-ui,sans-serif;--ease:cubic-bezier(.22,.9,.24,1)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.6;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono)}
+#dust{position:fixed;inset:0;opacity:.5;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:0 24px}
+header.top{position:fixed;top:0;left:0;right:0;z-index:20;background:rgba(10,13,18,.86);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1160px;margin:0 auto;display:flex;align-items:center;gap:22px;padding:13px 24px}
+.brand{font-family:var(--disp);font-weight:800;letter-spacing:.02em}
+.brand em{color:var(--mint);font-style:normal}
+.top-in .tag{font-size:11px;letter-spacing:.14em;color:var(--dim);margin-left:auto}
+section{padding:96px 0 40px}
+.mast{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:120px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--amber);border:1px solid var(--line);padding:7px 14px;display:inline-block;max-width:max-content}
+.mast h1{font-family:var(--disp);font-weight:800;font-size:clamp(2.5rem,7vw,6rem);line-height:.98;text-transform:uppercase;margin:30px 0 26px;max-width:16ch}
+.mast h1 span{display:block}
+.mast h1 .a{color:var(--mint)}
+.mast h1 .b{color:transparent;-webkit-text-stroke:1.5px var(--amber)}
+.lede{max-width:60ch;color:var(--dim);font-size:1.12rem}
+.lede strong{color:var(--ink);font-weight:500}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}
+.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;border:1px solid var(--line);padding:8px 14px;color:var(--dim)}
+.card{border:1px solid var(--line);background:var(--panel);padding:28px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.02em;margin-bottom:8px;font-size:1.15rem}
+.card h3 i{color:var(--mint);font-style:normal}
+.card p{color:var(--dim);font-size:.94rem}
+.card .k{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--amber);margin-bottom:8px}
+h2.sect{font-family:var(--disp);text-transform:uppercase;font-weight:800;font-size:clamp(1.6rem,3.4vw,2.6rem);margin-bottom:8px}
+.sub{color:var(--dim);max-width:70ch;margin-bottom:46px}
+table{width:100%;border-collapse:collapse;border:1px solid var(--line)}
+th,td{border:1px solid var(--line);padding:14px 16px;text-align:left;font-size:.9rem;vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:var(--dim);background:var(--panel)}
+td:first-child{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--dim)}
+td b{color:var(--ink);font-weight:500}
+.formula{border:1px solid var(--line);background:var(--panel);padding:36px;text-align:center}
+.formula .fx{font-family:Georgia,serif;font-style:italic;font-size:clamp(1.4rem,2.6vw,2rem)}
+.formula .fx .m{color:var(--mint)}.formula .fx .a{color:var(--amber)}
+footer{border-top:1px solid var(--line);margin-top:60px;padding:40px 0 70px;color:var(--dim);font-size:.88rem}
+footer .mono{font-size:10px;letter-spacing:.16em}
+@media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+.rev{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.rev.on{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<canvas id="dust"></canvas>
+<header class="top"><div class="top-in">
+  <span class="brand">Fractal<em>Mesh</em></span>
+  <span class="tag mono">SYN-2026.08.14 · REV 10324.1 · OPERATIONAL</span>
+</div></header>
+
+<div class="wrap">
+<section class="mast">
+  <span class="eyebrow mono">AUTONOMOUS AGENTS × FRACTAL MEMORY</span>
+  <h1><span class="a">Autonomous</span><span class="b">Orchestration</span></h1>
+  <p class="lede">A self-<strong>improving, verifiable</strong> agent harness that unifies recursive memory, intent-governed tool access, and cryptographically auditable provenance — scaled across edge devices by a Fibonacci-actuated growth lattice.</p>
+  <div class="chips">
+    <span class="chip">MCP-CONNECTED</span><span class="chip">9 AGENTS</span>
+    <span class="chip">GRAPH MEMORY</span><span class="chip">VERIFIABLE PROVENANCE</span>
+    <span class="chip">EDGE-FIRST</span>
+  </div>
+</section>
+
+<section class="rev"><h2 class="sect">01 · Why Differentiable</h2>
+<div class="sub">"Our ugliness gives identity." We favour interpretable, controllable signal processing and parameter estimation over black-box generation — machine learning that you can audit, tune, and explain.</div>
+<div class="grid3">
+  <div class="card"><div class="k">PRINCIPLE</div><h3><i>Inductive</i> Bias</h3><p>Classical signal models (oscillators, filters, mixing consoles) are made differentiable — less data, interpretable controls, no phase incoherence.</p></div>
+  <div class="card"><div class="k">PRINCIPLE</div><h3><i>Parameter</i> Estimation</h3><p>Estimate mix parameters (gain, pan, EQ, comp) rather than synthesizing end-to-end — every change is explainable and human-adjustable.</p></div>
+  <div class="card"><div class="k">PRINCIPLE</div><h3><i>Ocean in</i> a Drop</h3><p>Localize vast edge intelligence inside high-performance, on-device compute — complex reasoning running where the data lives.</p></div>
+</div></section>
+
+<section class="rev"><h2 class="sect">02 · The Agent Economy Stack</h2>
+<div class="sub">A standardized architecture for verifiable, sovereign AI agents.</div>
+<table>
+<thead><tr><th>LAYER</th><th>ROLE</th><th>TECH</th></tr></thead>
+<tbody>
+<tr><td>Connectivity</td><td>Secure tunnel to private data &amp; tooling</td><td><b>Cloudflare Mesh</b> — identity-aware routing</td></tr>
+<tr><td>Protocol</td><td>Universal language for tool access</td><td><b>Stateless MCP 2.0</b> — capability-scoped</td></tr>
+<tr><td>Authorization</td><td>Dynamic, principle-of-least-privilege</td><td><b>IGAC</b> — intent certificates</td></tr>
+<tr><td>Settlement</td><td>Independent wallet + hardware attestation</td><td><b>DePIN / Blockchain</b> — verifiable compute</td></tr>
+<tr><td>Memory</td><td>Graph-indexed, self-pruning recall</td><td><b>LightRAG</b> + Ebbinghaus forgetting</td></tr>
+</tbody></table></section>
+
+<section class="rev"><h2 class="sect">03 · Fractal Growth Lattice</h2>
+<div class="sub">Internal cycles scale by the Fibonacci sequence (1,1,2,3,5,8,13,21) anchored to a φⁿ 7.6&nbsp;Hz oscillation lattice for structural stability.</div>
+<div class="formula">
+  <div class="fx">T(n) = a·T(n−1) + b·T(n−2) &nbsp;—&nbsp; φⁿ <span class="m">(ocean)</span> ⊗ 7.6Hz <span class="a">(δ)</span></div>
+</div>
+</section>
+
+<section class="rev"><h2 class="sect">04 · Provenance &amp; Governance</h2>
+<div class="grid2">
+  <div class="card"><div class="k">EXECMESH</div><h3>Verifiable Audit Trail</h3><p>Every computational job registered with cryptographically verifiable data-integrity proofs and execution timestamps — satisfying FDA &amp; EU-AI-Act-grade requirements today, independent of ZK advances.</p></div>
+  <div class="card"><div class="k">NIST AI RMF</div><h3>Trustworthy by Design</h3><p>GOVERN · MAP · MEASURE · MANAGE. Valid-reliable as the non-negotiable base for explainability, privacy, robustness, and accountability.</p></div>
+</div></section>
+</div>
+
+<footer><div class="wrap mono">
+  <div>FRACTALMESH SYN-2026.08.14 · REV 10324.1</div>
+  <div style="margin-top:8px">Done means proven, not claimed.</div>
+</div></footer>
+
+<script>
+// dust field
+(function(){var c=document.getElementById('dust'),x=c.getContext('2d'),w,h,p=[];
+function rs(){w=c.width=c.offsetWidth;h=c.height=innerHeight;c.setAttribute('height',h)}
+rs();addEventListener('resize',rs);
+var N=Math.min(120,Math.floor(w/12));
+for(var i=0;i<N;i++){p.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.8+.4,vy:Math.random()*.3+.05,a:Math.random()})}
+(function draw(){x.clearRect(0,0,w,h);for(var i=0;i<N;i++){var d=p[i];d.y-=d.vy;if(d.y<-.5){d.y=h+2;d.x=Math.random()*w}
+x.globalAlpha=.15+d.a*.5;x.fillStyle='#7DF9C6';x.beginPath();x.arc(d.x,d.y,d.r,0,7);x.fill()}requestAnimationFrame(draw)})();
+// scroll reveal
+var rv=document.querySelectorAll('.rev');
+var io=new IntersectionObserver(function(e){e.forEach(function(en){if(en.isIntersecting){en.target.classList.add('on');io.unobserve(en.target)}})},{threshold:.12});
+rv.forEach(function(el){io.observe(el)});
+// progress bar not used on this build
+</script>
+</body>
+</html>
