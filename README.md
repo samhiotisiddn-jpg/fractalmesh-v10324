@@ -1,35 +1,53 @@
-# FractalMesh Scaffold v10324.1
+# FRACTALMESH — Omega Titan v10332.2
 
-Security-first deployable base for the autonomous-agent/mesh project.
-**Contains zero secrets.** Real credentials are placed at deploy time via `.env`
-(see `.env.example`) on a host that owns the relevant APIs.
+Multi-agent monetization + memory swarm for Samuel James Hiotis (ABN 56 628 117 363, Sole Trader).
+This repo is the **secrets-free** deployment base: all credentials are read from a local, git-ignored
+`.env` on the host — never committed.
+
+> Security: any secret pasted into chat/scripts is considered exposed. Rotate wallet keys, Stripe live,
+> and exchange API keys. Real keys belong ONLY in `/host/.env`, never in this repo.
 
 ## Layout
+
 ```
-public/index.html   self-contained marketing/console site (open in any browser)
-tools/mapper.py     FractalMesh -> Rork Max ingestion transform (self-test ✓)
-worker/build.sh     portable koboldcpp AI-Horde worker builder
-.env.example        Secret template — fill on YOUR host only, never commit
-.gitignore          Guards .env, models, keys
+public/           Static product site (index.html)
+web/              Dashboard + OMNISIMULATOR (served by static_server)
+swarm/            Agent swarm (env-driven, offline-safe)
+  swarm_memory_bus.py     Postgres Unified-Memory-Bus + Prometheus metrics
+  master_orchestrator.py  Flask :7784 — CORS, WebSocket, /api/revenue|gnss|episodic|agents, /health
+  trading_agent.py        Pionex + KuCoin + CoinGecko -> episodic memory
+  nft_agent.py            Alchemy + OpenSea + WAX RAM
+  commerce_agent.py       Stripe + Printful
+  social_agent.py         Telegram + Dev.to
+  scrape_agent.py         Firecrawl + Crawlbase
+  aiscrape_agent.py       Summarize queued scrapes (OpenRouter/Groq) -> semantic memory
+  static_server.py        :7790 serves web/ + public/
+  deploy.sh / stop.sh     Start/stop the swarm from .env
+tools/mapper.py     FractalMesh -> RorkMax field mapper (self-test: PASS)
+worker/build.sh     Portable AI-Horde worker build (CUDA/OpenBLAS auto)
 ```
 
-## 1. View the site
-`python3 -m http.server 8080 --directory public` then open http://localhost:8080
+## Quickstart (secrets-free / offline)
 
-## 2. Run the mapper
-```
-python3 tools/mapper.py --self-test
-python3 tools/mapper.py < mesh.json          # prints Rork payload
-python3 tools/mapper.py --in mesh.json --out rork.json
-```
+```bash
+pip install requests flask flask-sock psycopg2-binary prometheus_client tenacity
 
-## 3. Worker (real Linux host with a C toolchain)
-```
-bash worker/build.sh        # builds koboldcpp (CPU/OpenBLAS or CUDA) + model
-HORDE_API_KEY=xxx bash worker/build.sh --run   # connect to AI Horde
+# all agents run in OFFLINE/MOCK mode (no NEON_DSN)
+python3 swarm/swarm_memory_bus.py --self-test   # SELF_TEST: PASS
+python3 swarm/master_orchestrator.py            # :7784 -> /health returns offline-mock
+./swarm/deploy.sh                               # launch swarm (offline until .env filled)
 ```
 
-## Security posture
-- `.env` and all `*.key` are git-ignored.
-- Keys reported as previously exposed must be rotated at the provider before
-  reuse; this repo intentionally cannot contain them.
+Endpoints (online mode): `:7784 /health /api/revenue /api/gnss /api/episodic /api/agents /ws`
+Static: `:7790 /dashboard.html /omni.html`, Prometheus `:8000`.
+
+## Go live
+
+1. `cp .env.example .env` on the host and fill with freshly-issued secrets only.
+2. `./swarm/deploy.sh` — sources `.env`, launches agents, writes pids/ + logs/.
+3. Apply the Neon schema: see `SWARM_SCHEMA` note (vector + RLS tables) in `swarm_memory_bus.py` usage / docs.
+4. Monitor: `tail -f logs/*.log`, `./swarm/stop.sh` to halt.
+
+## Verify
+
+`python3 tools/mapper.py --self-test` → PASS · `bash -n swarm/*.sh` · `python3 -m py_compile swarm/*.py`

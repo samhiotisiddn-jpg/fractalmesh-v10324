@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRACTALMESH OMNISIMULATOR v10332</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050505;color:#0ff;font-family:'JetBrains Mono',monospace;overflow:hidden}
+#canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
+#ui{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:none}
+#ui > *{pointer-events:auto}
+#hud{position:absolute;top:12px;left:12px;background:rgba(0,0,0,0.7);border:1px solid #0ff;padding:12px;border-radius:6px;min-width:220px}
+#hud h1{font-size:14px;color:#d0f;margin-bottom:6px}
+#hud .stat{font-size:11px;color:#888;margin:2px 0}
+#hud .stat b{color:#0ff}
+#ctrl{position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,0.7);border:1px solid #0ff;padding:10px;border-radius:6px}
+#ctrl button{background:#0ff;color:#000;border:none;padding:6px 12px;margin:2px;font-family:inherit;font-size:11px;cursor:pointer;border-radius:3px}
+#ctrl button:hover{background:#d0f}
+#revenue-bar{position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.7);border:1px solid #0f0;padding:10px;border-radius:6px;color:#0f0;font-size:12px}
+.pulse-dot{display:inline-block;width:8px;height:8px;background:#0f0;border-radius:50%;margin-right:6px;animation:pulse 1s infinite}
+@keyframes pulse{0%{opacity:1}50%{opacity:0.3}100%{opacity:1}}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<div id="ui">
+  <div id="hud">
+    <h1>OMNISIMULATOR v10332</h1>
+    <div class="stat"><b>AGENTS:</b> 7 ACTIVE</div>
+    <div class="stat"><b>MASTER:</b> <span id="mst">CONNECTING</span></div>
+    <div class="stat"><b>DB:</b> NEON POSTGRES / OFFLINE</div>
+    <div class="stat"><b>WSS:</b> <span id="wsmode">connecting</span></div>
+  </div>
+  <div id="revenue-bar"><span class="pulse-dot"></span>LIVE REVENUE SYNC</div>
+  <div id="ctrl">
+    <button onclick="setMode('orbit')">ORBIT</button>
+    <button onclick="setMode('grid')">GRID</button>
+    <button onclick="setMode('warp')">WARP</button>
+  </div>
+</div>
+<script>
+const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
+let W,H,mode='orbit',t=0,particles=[];
+function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight}
+addEventListener('resize',resize);resize();
+for(let i=0;i<200;i++)particles.push({x:Math.random()*W,y:Math.random()*H,z:Math.random()*2,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5});
+function setMode(m){mode=m}
+function draw(){
+  t+=0.01;
+  ctx.fillStyle='rgba(5,5,5,0.15)';ctx.fillRect(0,0,W,H);
+  if(mode==='orbit'){
+    ctx.save();ctx.translate(W/2,H/2);
+    for(let i=0;i<6;i++){
+      ctx.beginPath();ctx.strokeStyle='hsla('+(i*60+t*20)+',80%,50%,0.4)';
+      ctx.arc(0,0,60+i*30,0,Math.PI*2);ctx.stroke();
+    }
+    ctx.restore();
+  }else if(mode==='grid'){
+    ctx.strokeStyle='rgba(0,255,255,0.08)';
+    for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+    for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+  }else if(mode==='warp'){
+    ctx.save();ctx.translate(W/2,H/2);
+    for(let p of particles){
+      let d=Math.hypot(p.x-W/2,p.y-H/2)+1;
+      p.x+=p.vx*(1+100/d);p.y+=p.vy*(1+100/d);
+      if(p.x<0||p.x>W||p.y<0||p.y>H){p.x=W/2+Math.random()*20-10;p.y=H/2+Math.random()*20-10}
+      ctx.fillStyle='hsla(180,100%,50%,'+Math.min(1,200/d)+')';ctx.fillRect(p.x-W/2,p.y-H/2,1.5,1.5);
+    }
+    ctx.restore();
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+let ws;
+function connectWS(){
+  const proto=location.protocol==='https:'?'wss://':'ws://';
+  try{ws=new WebSocket(proto+location.hostname+':7784/ws');
+    ws.onopen=()=>{document.getElementById('mst').style.color='#0f0';document.getElementById('mst').textContent='LIVE';document.getElementById('wsmode').textContent='connected'};
+    ws.onmessage=(e)=>{const d=JSON.parse(e.data);if(d.type==='revenue_pulse'){document.getElementById('revenue-bar').innerHTML='<span class="pulse-dot"></span>REVENUE +'+d.count;}};
+    ws.onclose=()=>{document.getElementById('mst').style.color='#f00';document.getElementById('mst').textContent='OFFLINE';document.getElementById('wsmode').textContent='no master (mock)';};
+  }catch(e){document.getElementById('mst').textContent='OFFLINE';}
+}
+connectWS();
+</script>
+</body>
+</html>

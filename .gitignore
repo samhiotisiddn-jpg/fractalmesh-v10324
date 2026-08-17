@@ -1,7 +1,10 @@
 .env
 .env.*
+!.env.example
 *.gguf
 koboldcpp/
 __pycache__/
 *.pem
 *.key
+logs/
+pids/
